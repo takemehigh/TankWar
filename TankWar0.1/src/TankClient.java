@@ -3,6 +3,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+
 public class TankClient extends Frame{
 	/**
 	 * 
@@ -13,7 +14,8 @@ public class TankClient extends Frame{
 	Image bufferImage=null;
 	static final int GAME_WIDTH=640;
 	static final int GAME_HEIGHT=480;
-	Tank mytank=new Tank(50, 50);
+	Tank mytank=new Tank(this,50, 50);
+	Missile mymissle=null;
 	@Override
 	public void update(Graphics g) {
 		if(bufferImage==null){
@@ -30,6 +32,7 @@ public class TankClient extends Frame{
 	@Override
 	public void paint(Graphics g) {
 		// TODO Auto-generated method stub
+		if(mymissle!=null)mymissle.draw(g);
 		mytank.draw(g);
 		
 	}

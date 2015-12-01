@@ -3,6 +3,7 @@ import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 
 public class Tank {
+	TankClient tc;
 	private static final int XSPEED=5;
 	private static final int YSPEED=5;
 	private int x;
@@ -10,10 +11,18 @@ public class Tank {
 	private boolean L,R,U,D=false;
 	enum Direction {U,D,L,R,LU,RU,RD,LD,STOP};
 	Direction dir=Direction.STOP;
+	private Missile m;
 	public Tank(int x, int y) {
 		this.x = x;
 		this.y = y;
 	}
+	
+	public Tank(TankClient tc, int x, int y) {
+		this(x,y);
+		this.tc = tc;
+		
+	}
+
 	void draw(Graphics g){
 		Color c=g.getColor();
 		g.setColor(Color.red);
@@ -38,8 +47,15 @@ public class Tank {
 		case KeyEvent.VK_DOWN:
 			D=true;
 			break;
+		case KeyEvent.VK_CONTROL:
+			tc.mymissle=fire();
+			break;
 		}
 		decideDirection();
+	}
+	private Missile fire() {
+		Missile m=new Missile(x, y, dir);
+		return m;
 	}
 	private void decideDirection() {
 		if(L&&!R&&!U&&!D)dir=Direction.L;

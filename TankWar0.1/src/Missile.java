@@ -4,7 +4,7 @@ import java.util.List;
 public class Missile {
 	public static final int XSPEED = 10;
 	public static final int YSPEED = 10;
-	
+	private boolean good;
 	public static final int WIDTH = 10;
 	public static final int HEIGHT = 10;
 	boolean live=true;
@@ -19,9 +19,10 @@ public class Missile {
 	
 
 	
-	public Missile(int x, int y, Tank.Direction dir,TankClient tc) {
+	public Missile(int x, int y, Tank.Direction dir,TankClient tc,boolean good) {
 		this(x, y, dir);
 		this.tc=tc;
+		this.good=good;
 	}
 
 	public boolean isLive() {
@@ -84,7 +85,7 @@ public class Missile {
 	}
 	public boolean hitTank(Tank t){
 		
-		if(this.getRec().intersects(t.getRec())&&t.isLive()){
+		if(this.getRec().intersects(t.getRec())&&t.isLive()&&(this.good!=t.isGood())){
 			tc.explodes.add(new Explode(t.getX()+t.WIDTH/2,t.getY()+HEIGHT/2, tc));
 			t.live=false;
 			this.live=false;
@@ -98,6 +99,18 @@ public class Missile {
 	public void hitTank(List<Tank> tanks) {
 		for (int i = 0; i <tanks.size(); i++) {
 			hitTank(tanks.get(i));
+		}
+	}
+	public boolean hitWall(Wall w){
+		if(this.getRec().intersects(w.getRec())&&this.isLive()){
+			this.live=false;
+			return true;
+		}
+		return false;
+	}
+	public void hitWall(List<Wall> w){
+		for(int i=0;i<w.size();i++){
+			hitWall(w.get(i));
 		}
 	}
 }

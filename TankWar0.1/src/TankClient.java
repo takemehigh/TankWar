@@ -1,13 +1,19 @@
-import java.awt.*;
-import java.awt.event.*;
-import java.util.List;
+import java.awt.Color;
+import java.awt.Frame;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
+import java.util.List;
 
 public class TankClient extends Frame {
 	public static final int GAME_WIDTH = 800;
 	public static final int GAME_HEIGHT = 600;
-	
-	Tank myTank = new Tank(50, 50, this,true);
+	List<Wall> walls=new ArrayList<Wall>();
+	Tank myTank = new Tank(500, 500, this,true);
 	Tank enemyTank=new Tank(200,200,this,false);
 	List<Missile> missiles = new ArrayList<Missile>();
 	Image offScreenImage = null;
@@ -20,7 +26,10 @@ public class TankClient extends Frame {
 		for(int i=0; i<missiles.size(); i++) {
 			Missile m = missiles.get(i);
 			m.hitTank(tanks);
+			m.hitTank(myTank);
+			m.hitWall(walls);
 			m.draw(g);
+			
 		}
 		for (int i = 0; i < explodes.size(); i++) {
 			Explode e=explodes.get(i);
@@ -28,9 +37,17 @@ public class TankClient extends Frame {
 		}
 		for(int i=0;i<tanks.size();i++){
 			Tank t=tanks.get(i);
+			t.touchWall(walls);
 			t.draw(g);
+			
 		}
+		myTank.touchWall(walls);
 		myTank.draw(g);
+		for(int i=0;i<walls.size();i++){
+			Wall w=walls.get(i);
+			System.out.println(i);
+			w.draw(g);
+		}
 	}
 	
 	public void update(Graphics g) {
@@ -48,8 +65,10 @@ public class TankClient extends Frame {
 
 	public void lauchFrame() {
 		//this.setLocation(400, 300);
+		walls.add(new Wall(200,400,this));
+		walls.add(new Wall(100,200,this));
 		for(int i=0;i<10;i++){
-			this.tanks.add(new Tank(40+i*60, 200,this,false));
+			this.tanks.add(new Tank(false, this, 40+30*i, 200,Tank.Direction.D));
 		}
 		this.setSize(GAME_WIDTH, GAME_HEIGHT);
 		this.setTitle("TankWar");

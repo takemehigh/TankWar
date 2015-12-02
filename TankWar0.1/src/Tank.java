@@ -1,6 +1,8 @@
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.List;
+import java.util.Random;
 
 public class Tank {
 	public static final int XSPEED = 5;
@@ -11,14 +13,14 @@ public class Tank {
 	private boolean good;
 	TankClient tc;
 	boolean live=true;
-	private int x, y;
-	
+	private int x, y,oldx,oldy;
+	static Random r=new Random();
 	private boolean bL=false, bU=false, bR=false, bD = false;
 	enum Direction {L, LU, U, RU, R, RD, D, LD, STOP};
 	
 	private Direction dir = Direction.STOP;
 	private Direction ptDir = Direction.D;
-
+	private int step=r.nextInt(12)+3;
 	public Tank(int x, int y) {
 		this.setX(x);
 		this.setY(y);
@@ -27,16 +29,22 @@ public class Tank {
 	public Tank(int x, int y, TankClient tc,boolean good) {
 		this(x, y);
 		this.tc = tc;
-		this.good=good;
+		this.setGood(good);
 	}
 	
+	
+	public Tank(boolean good, TankClient tc, int x, int y, Direction dir) {
+		this(x,y,tc,good);
+		this.dir = dir;
+	}
+
 	public void draw(Graphics g) {
 		if(!this.isLive()){
 			tc.tanks.remove(this);
 			return;
 		}
 		Color c = g.getColor();
-		if(good)g.setColor(Color.red);
+		if(isGood())g.setColor(Color.red);
 		else g.setColor(Color.blue);
 		g.fillOval(getX(), getY(), WIDTH, HEIGHT);
 		g.setColor(c);
@@ -72,6 +80,8 @@ public class Tank {
 	}
 	
 	void move() {
+		this.oldx=x;
+		this.oldy=y;
 		switch(dir) {
 		case L:
 			setX(getX() - XSPEED);
@@ -111,6 +121,17 @@ public class Tank {
 		if(this.dir != Direction.STOP) {
 			this.ptDir = this.dir;
 		}
+		if(!this.isGood()){
+			if(step==0){
+			Direction[] dirs=Direction.values();
+			int a=r.nextInt(dirs.length);
+			this.dir=dirs[a];
+			step=r.nextInt(12)+3;
+			}
+			step--;
+			if(r.nextInt(40)>37)this.fire();
+		}
+	
 	}
 	
 	public void keyPressed(KeyEvent e) {
@@ -171,9 +192,10 @@ public class Tank {
 	}
 	
 	public Missile fire() {
+		if(!this.isLive()){return null;}
 		int x = this.getX() + Tank.WIDTH/2 - Missile.WIDTH/2;
 		int y = this.getY() + Tank.HEIGHT/2 - Missile.HEIGHT/2;
-		Missile m = new Missile(x, y, ptDir,tc);
+		Missile m = new Missile(x, y, ptDir,tc,this.isGood());
 		tc.missiles.add(m);
 		return m;
 	}
@@ -181,7 +203,19 @@ public class Tank {
 	public Rectangle getRec() {
 		return new Rectangle(getX(),getY(),WIDTH,HEIGHT);
 	}
-
+	public boolean touchWall(Wall w){
+		if(this.live&&this.getRec().intersects(w.getRec())){
+			x=oldx;
+			y=oldy;
+			return true;
+		}
+		return false;
+	}
+	public void touchWall(List<Wall> walls){
+		for(Wall w:walls){
+			touchWall(w);
+		}
+	}
 	public int getX() {
 		return x;
 	}
@@ -196,5 +230,13 @@ public class Tank {
 
 	public void setY(int y) {
 		this.y = y;
+	}
+
+	public boolean isGood() {
+		return good;
+	}
+
+	public void setGood(boolean good) {
+		this.good = good;
 	}
 }

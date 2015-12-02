@@ -1,19 +1,34 @@
-import java.awt.Color;
-import java.awt.Graphics;
+import java.awt.*;
 
 public class Missile {
-	private int x;
-	private int y;
-	private static final int XSPEED=10;
-	private static final int YSPEED=10;
-	private boolean L,R,U,D=false;
-	enum Direction {U,D,L,R,LU,RU,RD,LD};
-	Tank.Direction dir;
+	public static final int XSPEED = 10;
+	public static final int YSPEED = 10;
 	
-	public Missile(int x, int y,Tank.Direction dir) {
+	public static final int WIDTH = 10;
+	public static final int HEIGHT = 10;
+	boolean live=true;
+	int x, y;
+	Tank.Direction dir;
+	TankClient tc;
+	public Missile(int x, int y, Tank.Direction dir) {
 		this.x = x;
 		this.y = y;
-		this.dir=dir;
+		this.dir = dir;
+	}
+	
+
+	
+	public Missile(int x, int y, Tank.Direction dir,TankClient tc) {
+		this(x, y, dir);
+		this.tc=tc;
+	}
+
+	public boolean isLive() {
+		return live;
+	}
+
+	public void setLive(boolean live) {
+		this.live = live;
 	}
 
 	public void draw(Graphics g){
@@ -22,6 +37,9 @@ public class Missile {
 		g.fillOval(x, y, 10, 10);
 		g.setColor(c);
 		move();
+		if(!this.isLive()){
+			tc.missiles.remove(this);
+		}
 	}
 	public void move(){
 		switch (dir) {
@@ -53,7 +71,14 @@ public class Missile {
 		x+=XSPEED;
 		y+=YSPEED;
 		break;
-
+		
+		}
+		if(x<0||y<0||x>TankClient.GAME_WIDTH||y>TankClient.GAME_HEIGHT){
+			this.setLive(false);
 		}
 	}
 }
+
+	
+	
+

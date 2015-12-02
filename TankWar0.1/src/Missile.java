@@ -1,4 +1,5 @@
 import java.awt.*;
+import java.util.List;
 
 public class Missile {
 	public static final int XSPEED = 10;
@@ -32,14 +33,15 @@ public class Missile {
 	}
 
 	public void draw(Graphics g){
+		if(!this.isLive()){
+			tc.missiles.remove(this);
+		}
 		Color c=g.getColor();
 		g.setColor(Color.black);
 		g.fillOval(x, y, 10, 10);
 		g.setColor(c);
 		move();
-		if(!this.isLive()){
-			tc.missiles.remove(this);
-		}
+	
 	}
 	public void move(){
 		switch (dir) {
@@ -75,6 +77,27 @@ public class Missile {
 		}
 		if(x<0||y<0||x>TankClient.GAME_WIDTH||y>TankClient.GAME_HEIGHT){
 			this.setLive(false);
+		}
+	}
+	public Rectangle getRec(){
+		return new Rectangle(x,y,WIDTH,HEIGHT);
+	}
+	public boolean hitTank(Tank t){
+		
+		if(this.getRec().intersects(t.getRec())&&t.isLive()){
+			tc.explodes.add(new Explode(t.getX()+t.WIDTH/2,t.getY()+HEIGHT/2, tc));
+			t.live=false;
+			this.live=false;
+			return true;
+		}
+		return false;
+	}
+
+
+
+	public void hitTank(List<Tank> tanks) {
+		for (int i = 0; i <tanks.size(); i++) {
+			hitTank(tanks.get(i));
 		}
 	}
 }

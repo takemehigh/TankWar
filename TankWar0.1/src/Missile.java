@@ -9,9 +9,9 @@ public class Missile {
 	public static final int HEIGHT = 10;
 	boolean live=true;
 	int x, y;
-	Tank.Direction dir;
+	Direction dir;
 	TankClient tc;
-	public Missile(int x, int y, Tank.Direction dir) {
+	public Missile(int x, int y, Direction dir) {
 		this.x = x;
 		this.y = y;
 		this.dir = dir;
@@ -19,10 +19,11 @@ public class Missile {
 	
 
 	
-	public Missile(int x, int y, Tank.Direction dir,TankClient tc,boolean good) {
+	public Missile(int x, int y, Direction dir,TankClient tc,boolean good) {
 		this(x, y, dir);
 		this.tc=tc;
 		this.good=good;
+		this.tc=tc;
 	}
 
 	public boolean isLive() {
@@ -38,7 +39,8 @@ public class Missile {
 			tc.missiles.remove(this);
 		}
 		Color c=g.getColor();
-		g.setColor(Color.black);
+		if(this.good)g.setColor(Color.red);
+		else {g.setColor(Color.black);}
 		g.fillOval(x, y, 10, 10);
 		g.setColor(c);
 		move();
@@ -87,7 +89,10 @@ public class Missile {
 		
 		if(this.getRec().intersects(t.getRec())&&t.isLive()&&(this.good!=t.isGood())){
 			tc.explodes.add(new Explode(t.getX()+t.WIDTH/2,t.getY()+HEIGHT/2, tc));
+			t.setLife(t.getLife()-1);
+			if(t.getLife()<1){
 			t.live=false;
+			}
 			this.live=false;
 			return true;
 		}

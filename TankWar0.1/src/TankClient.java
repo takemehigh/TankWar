@@ -19,10 +19,19 @@ public class TankClient extends Frame {
 	Image offScreenImage = null;
 	List<Explode> explodes=new ArrayList<Explode>();
 	List<Tank> tanks=new ArrayList<Tank>();
+	Health h=new Health();
+	Thread t;
 	public void paint(Graphics g) {
+		
+		g.drawString("myLife:"+myTank.getLife(), 10, 110);
 		g.drawString("missiles count:" + missiles.size(), 10, 50);
 		g.drawString("explodeS:"+explodes.size(), 10, 70);
 		g.drawString("tanks:"+tanks.size(), 10, 90);
+		if(tanks.size()==0){
+			for(int i=0;i<5;i++){
+			tanks.add(new Tank(false, this, 40+30*i, 200,Direction.D));
+			}
+		}
 		for(int i=0; i<missiles.size(); i++) {
 			Missile m = missiles.get(i);
 			m.hitTank(tanks);
@@ -31,7 +40,8 @@ public class TankClient extends Frame {
 			m.draw(g);
 			
 		}
-		for (int i = 0; i < explodes.size(); i++) {
+		h.draw(g);
+		for (int i = 0; i < explodes.size(); i++) { 
 			Explode e=explodes.get(i);
 			e.draw(g);
 		}
@@ -39,13 +49,13 @@ public class TankClient extends Frame {
 			Tank t=tanks.get(i);
 			t.touchWall(walls);
 			t.draw(g);
-			
 		}
+		
 		myTank.touchWall(walls);
 		myTank.draw(g);
+		myTank.eat(h);
 		for(int i=0;i<walls.size();i++){
 			Wall w=walls.get(i);
-			System.out.println(i);
 			w.draw(g);
 		}
 	}
@@ -54,6 +64,7 @@ public class TankClient extends Frame {
 		if(offScreenImage == null) {
 			offScreenImage = this.createImage(GAME_WIDTH, GAME_HEIGHT);
 		}
+		
 		Graphics gOffScreen = offScreenImage.getGraphics();
 		Color c = gOffScreen.getColor();
 		gOffScreen.setColor(Color.GREEN);
@@ -68,7 +79,7 @@ public class TankClient extends Frame {
 		walls.add(new Wall(200,400,this));
 		walls.add(new Wall(100,200,this));
 		for(int i=0;i<10;i++){
-			this.tanks.add(new Tank(false, this, 40+30*i, 200,Tank.Direction.D));
+			this.tanks.add(new Tank(false, this, 40+30*i, 200,Direction.D));
 		}
 		this.setSize(GAME_WIDTH, GAME_HEIGHT);
 		this.setTitle("TankWar");
@@ -84,7 +95,8 @@ public class TankClient extends Frame {
 		
 		setVisible(true);
 		
-		new Thread(new PaintThread()).start();
+		t=new Thread(new PaintThread());
+		t.start();
 	}
 
 	public static void main(String[] args) {
@@ -95,12 +107,12 @@ public class TankClient extends Frame {
 	private class PaintThread implements Runnable {
 
 		public void run() {
-			while(true) {
+			while(!t.isInterrupted()) {
 				repaint();
 				try {
 					Thread.sleep(50);
 				} catch (InterruptedException e) {
-					e.printStackTrace();
+					t.interrupt();
 				}
 			}
 		}
@@ -109,6 +121,8 @@ public class TankClient extends Frame {
 	private class KeyMonitor extends KeyAdapter {
 
 		public void keyReleased(KeyEvent e) {
+			int a=e.getKeyCode();
+			
 			myTank.keyReleased(e);
 		}
 
